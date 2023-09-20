@@ -91,9 +91,9 @@ public class 원자_충돌_서요셉 {
     public static void main(String[] args) throws Exception {
         input();
 
-        System.out.println(" ** 최초 격자 상태 **");
-        testPrint(atomBoard);
-        System.out.println();
+//        System.out.println(" ** 최초 격자 상태 **");
+//        testPrint(atomBoard);
+//        System.out.println();
 
         ans = 0;
         for (int i = 0; i < K; i++) {
@@ -101,16 +101,16 @@ public class 원자_충돌_서요셉 {
             // 원자 이동
             moveAtom();
 
-            System.out.println("  원자 이동 후 격자 상태");
-            testPrint(atomBoard);
-            System.out.println();
+//            System.out.println("  원자 이동 후 격자 상태");
+//            testPrint(atomBoard);
+//            System.out.println();
 
             // 한칸에 원자가 2개 이상인 경우 원자 합성
             atomComposition();
 
-            System.out.println("  원자 합성 후 격자 상태");
-            testPrint(atomBoard);
-            System.out.println();
+//            System.out.println("  원자 합성 후 격자 상태");
+//            testPrint(atomBoard);
+//            System.out.println();
         }
 
         // 격자 순회하며 원자 질량 합 구하기
@@ -119,15 +119,16 @@ public class 원자_충돌_서요셉 {
     }
 
     static void moveAtom() {
-        System.out.println("1. 원자 이동");
+//        System.out.println("1. 원자 이동");
+        InitAtomBoard();
 
         // atomPool 에서 atom 자체의 좌표를 변경시킨 다음 초기화 시킨 atomBoard 에 삽입한다.
         for (Atom a : atomPool) {
             int nx = a.x;
             int ny = a.y;
 
-            System.out.println("이동 전 : " + a.x + " " + a.y);
-            System.out.println("이동방향 : " + a.d + "  속력 : " + a.s);
+//            System.out.println("이동 전 : " + a.x + " " + a.y);
+//            System.out.println("이동방향 : " + a.d + "  속력 : " + a.s);
 
             for (int i = 0; i < a.s; i++) {
                 nx += dx[a.d];
@@ -140,27 +141,25 @@ public class 원자_충돌_서요셉 {
                 else if (ny > N) ny = 1;
             }
 
-            System.out.println("이동 후 : " + nx + " " + ny);
-            System.out.println();
-
-
-            atomBoard[a.x][a.y].remove(a);
-            atomBoard[nx][ny].add(a);
+//            System.out.println("이동 후 : " + nx + " " + ny);
+//            System.out.println();
 
             a.x = nx;
             a.y = ny;
+
+            atomBoard[a.x][a.y].add(a);
         }
 
     }
 
     static void atomComposition() {
-        System.out.println("2. 원자 합성");
+//        System.out.println("2. 원자 합성");
         // 격자 순회 하며 한칸에 2개 이상인 좌표는 원자 충돌 발생
         for (int i = 1; i <= N; i++) {
             for (int j = 1; j <= N; j++) {
 
                 // 원자 2개 이상인 경우만 진행
-                if (atomBoard[i][j].size() > 1) {
+                if (atomBoard[i][j].size() >= 2) {
                     int mSum = 0;
                     int sSum = 0;
                     int aCnt = atomBoard[i][j].size();
