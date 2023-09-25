@@ -29,9 +29,9 @@ for tc in range(T):
 
         for r in range(SIZE):
             for c in range(SIZE):
-                if live[r][c] == 0:
+                if live[r][c] == 0 or dead[r][c]:
                     continue
-                elif live[r][c] < now:  # 활성화 되어서 번식하는 상태
+                if not dead[r][c] and live[r][c] < now:  # 활성화 되어서 번식하는 상태
                     for d in range(4):
                         nr, nc = r + dr[d], c + dc[d]
                         # 빈 칸이거나 지금 세포가 더 생명력이 큰 경우
