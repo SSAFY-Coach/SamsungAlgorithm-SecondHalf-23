@@ -2,8 +2,9 @@
 [범위를 넘어가는 경우 반대편으로 돌아가는 반복을 빠르게 처리하기]
 풀이시간 : 2시간 50분 (ㅁㅊ)
 - 상어 왕복 처리하는게 너무 어려웠음...
-- 왕복처리 참고 : https://www.acmicpc.net/source/66567357
-
+- 왕복처리 참고 :
+  - https://www.acmicpc.net/source/66567357
+  - 왔다 갔다를 몇 번 하는지를 세고, 모듈러 했는데 범위 밖이면 위치 및 방향 재조정
 """
 
 
@@ -32,7 +33,7 @@ def init():
     for idx in range(M):
         r, c, s, d, z = map(int, input().split())
         # grid는 (0,0)부터 시작하니 r, c에서 1씩 뺀다.
-        sharks.append(Shark(r - 1, c - 1, s, d-1, z))
+        sharks.append(Shark(r - 1, c - 1, s, d - 1, z))
         # grid는 0으로 채워져있기 때문에 첫 번째 상어가 0이면 구분이 안되므로 1부터 시작한다.
         # 0번에 가짜 상어 넣어뒀음
         grid[r - 1][c - 1] = idx + 1
@@ -86,9 +87,11 @@ def move_shark():
         if (shark.r, shark.c) == (-1, -1):
             continue
 
+        # 위치에 아무 상어도 없다면 idx 자리
         if not grid[shark.r][shark.c]:
             grid[shark.r][shark.c] = idx
         else:
+            # 있다면 더 큰애가 살아남고, 먹힌 애는 (-1, -1)
             other = grid[shark.r][shark.c]
             if sharks[other].z > shark.z:
                 sharks[idx] = Shark()

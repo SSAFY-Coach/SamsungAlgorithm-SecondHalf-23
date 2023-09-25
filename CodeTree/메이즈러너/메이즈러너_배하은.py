@@ -1,7 +1,10 @@
 """
 [시계방향 회전]
-풀이시간 : 2시간
-- 로직 구성 25분
+- 풀이시간 : 2시간 (로직 구성 25분)
+- 핵심 부분 :
+1) 참가자의 정보 저장 방식 ( 위치 = tuple, 탈출 여부 = boolean)
+2) (참가자, 출구)를 포함하는 가장 작은 정사각형 만들기
+3) 벽을 저장한 grid에 더해 출구, 참가자도 시계방향 회전
 """
 answer = 0
 N, M, K = map(int, input().split())
@@ -11,7 +14,7 @@ runners = list()  # 참가자 위치
 escaped = [False] * M  # 참가자 탈출 여부
 for _ in range(M):
     row, col = map(int, input().split())
-    runners.append([row-1, col-1]) # 기준 좌표 (1,1)
+    runners.append([row-1, col-1])  # 기준 좌표 (1,1)
 
 e_row, e_col = map(lambda x: int(x) - 1, input().split())  # 출구 위치(exit_row, exit_col)
 
@@ -64,6 +67,7 @@ def rotate_clock(s_row, s_col, diff, row, col):
     col -= s_col
 
     # [⚠주의] 시계 방향 외우고, r과c 원본을 왼쪽, 오른쪽에 두는 것에 대해서도 정리
+    # 원래의 위치가 어떻게 바뀌는지를 반환한다. 새위치[c][N-1-r] = 원본[r][c]
     row, col = col, diff-row
 
     # 다시 정사각형 기준점 추가하기
@@ -90,7 +94,7 @@ def rotate_maze():
             continue
         r_row, r_col = runners[idx]
 
-        # 참가자와 출구의 행, 열 차이 중 더 큰 것으로 만든 정사각형 (now_diff)
+        # 참가자와 출구의 행, 열 차이 중 더 큰 것이 정사각형 한 변의 길이 (now_diff)
         n_diff = max(abs(e_row - r_row), abs(e_col - r_col))
 
         # 같아도 행,열이 더 0에 가까울 수 있기 때문에 같은 것도 포함해야한다.
@@ -122,7 +126,7 @@ def rotate_maze():
     # 3. 새로 만든 2차원 배열을 90도 회전시킨다. 이때 -1한다.(음수가 되지 않게 조심)
     for r in range(edge):
         for c in range(edge):
-            rotated[r][c] = copied[diff-c][r] - 1
+            rotated[c][diff-r] = copied[r][c] - 1
             if rotated[r][c] < 0:
                 rotated[r][c] = 0
 
