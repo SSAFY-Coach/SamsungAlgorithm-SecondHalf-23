@@ -1,10 +1,10 @@
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
-import java.util.stream.Collectors;
 
 public class Main {
     /*
@@ -22,8 +22,7 @@ public class Main {
     private static final int[] dx = {0, 0, -1, 1, -1, 1, -1, 1};
     private static final int[] directionMapper = {0, 5, 3, 7, 1, 6, 2, 4};
     private static int N, M, K;
-    private static List<Atom> atomList = new LinkedList<>();
-    private static List<Atom> combinedAtomList = new LinkedList<>();
+    private static List<Atom>[][] map;
 
     public static void main(String[] args) throws Exception {
         init();
@@ -38,6 +37,12 @@ public class Main {
         N = Integer.parseInt(st.nextToken());
         M = Integer.parseInt(st.nextToken());
         K = Integer.parseInt(st.nextToken());
+        map = new List[N + 1][N + 1];
+        for (int i = 1; i <= N; i++) {
+            for (int j = 1; j <= N; j++) {
+                map[i][j] = new LinkedList<>();
+            }
+        }
         for (int i = 0; i < M; i++) {
             st = new StringTokenizer(br.readLine());
             int y = Integer.parseInt(st.nextToken());
@@ -45,7 +50,8 @@ public class Main {
             int mass = Integer.parseInt(st.nextToken());
             int speed = Integer.parseInt(st.nextToken());
             int direction = directionMapper[Integer.parseInt(st.nextToken())];
-            atomList.add(new Atom(y, x, mass, speed, direction));
+            Atom atom = new Atom(y, x, mass, speed, direction);
+            map[y][x].add(atom);
         }
     }
 
@@ -53,66 +59,59 @@ public class Main {
         int currentTime = 0;
         while (currentTime < K) {
             currentTime++;
-//            atomList.forEach(System.out::println);
             moveAtoms();
-//            System.out.println("=====after move=====");
-//            atomList.forEach(System.out::println);
-            while (true) {
-                Node overlappedCoord = findOverlappedCoord();
-//                System.out.println("overlappedCoord = " + overlappedCoord);
-                if (overlappedCoord == null) {
-                    break;
-                }
-                combineAtoms(overlappedCoord);
-            }
-            if (!combinedAtomList.isEmpty()) {
-                atomList.addAll(combinedAtomList);
-                combinedAtomList.clear();
-            }
+            combineAtoms();
         }
-        return atomList.stream()
-                .mapToInt(atom -> atom.mass)
-                .sum();
+        return getAtomSum();
     }
 
     private static void moveAtoms() {
-        atomList.forEach(atom -> {
-            int ny = getCircularCoord(atom.y + dy[atom.direction] * atom.speed);
-            int nx = getCircularCoord(atom.x + dx[atom.direction] * atom.speed);
-            atom.y = ny;
-            atom.x = nx;
-        });
-    }
-
-    private static Node findOverlappedCoord() {
-        for (Atom atom : atomList) {
-            int overlappedCount = (int) atomList.stream()
-                    .filter(atom2 -> atom.y == atom2.y && atom.x == atom2.x)
-                    .count();
-            if (overlappedCount >= 2) {
-                return atom;
+        List<Atom> movedAtomList = new ArrayList<>();
+        for (int i = 1; i <= N; i++) {
+            for (int j = 1; j <= N; j++) {
+                if (!map[i][j].isEmpty()) {
+                    for (Atom atom : map[i][j]) {
+                        int ny = getCircularCoord(atom.y + dy[atom.direction] * atom.speed);
+                        int nx = getCircularCoord(atom.x + dx[atom.direction] * atom.speed);
+                        movedAtomList.add(new Atom(ny, nx, atom.mass, atom.speed, atom.direction));
+                    }
+                    map[i][j].clear();
+                }
             }
         }
-        return null;
+        for (Atom atom : movedAtomList) {
+            map[atom.y][atom.x].add(atom);
+        }
     }
 
-    private static void combineAtoms(Node overlappedCoord) {
-        List<Atom> overlappedAtomList = atomList.stream()
-                .filter(atom -> atom.y == overlappedCoord.y && atom.x == overlappedCoord.x)
-                .collect(Collectors.toList());
-        atomList.removeAll(overlappedAtomList);
+    private static void combineAtoms() {
+        for (int i = 1; i <= N; i++) {
+            for (int j = 1; j <= N; j++) {
+                if (map[i][j].size() >= 2) {
+                    combine(map[i][j]);
+                }
+            }
+        }
+    }
 
+    private static void combine(List<Atom> overlappedAtomList) {
+        int y = overlappedAtomList.get(0).y;
+        int x = overlappedAtomList.get(0).x;
         int newMass = overlappedAtomList.stream()
                 .mapToInt(atom -> atom.mass)
                 .sum() / 5;
+
         if (newMass > 0) {
             int newSpeed = overlappedAtomList.stream()
                     .mapToInt(atom -> atom.speed)
                     .sum() / overlappedAtomList.size();
             int[] newDirection = isAllSameKindaDirection(overlappedAtomList) ? new int[]{0, 1, 2, 3} : new int[]{4, 5, 6, 7};
+            map[y][x].clear();
             for (int i = 0; i < 4; i++) {
-                combinedAtomList.add(new Atom(overlappedCoord.y, overlappedCoord.x, newMass, newSpeed, newDirection[i]));
+                map[y][x].add(new Atom(y, x, newMass, newSpeed, newDirection[i]));
             }
+        } else {
+            map[y][x].clear();
         }
     }
 
@@ -122,49 +121,42 @@ public class Main {
     }
 
     private static int getCircularCoord(int num) {
-        if (num <= 0) {
-            while (num <= 0) {
-                num += N;
-            }
-            return num;
-        } else if (num > N) {
-            return num % N;
-        } else {
-            return num;
+        while (num <= 0) {
+            num += N;
         }
+        while (num > N) {
+            num -= N;
+        }
+        return num;
     }
 
-    private static class Node {
+    private static int getAtomSum() {
+        int sum = 0;
+        for (int i = 1; i <= N; i++) {
+            for (int j = 1; j <= N; j++) {
+                if (!map[i][j].isEmpty()) {
+                    for (Atom atom : map[i][j]) {
+                        sum += atom.mass;
+                    }
+                }
+            }
+        }
+        return sum;
+    }
+
+    private static class Atom {
         int y;
         int x;
-
-        public Node(int y, int x) {
-            this.y = y;
-            this.x = x;
-        }
-    }
-
-    private static class Atom extends Node {
         int mass;
         int speed;
         int direction;
 
         public Atom(int y, int x, int mass, int speed, int direction) {
-            super(y, x);
+            this.y = y;
+            this.x = x;
             this.mass = mass;
             this.speed = speed;
             this.direction = direction;
-        }
-
-        @Override
-        public String toString() {
-            return "Atom{" +
-                    "y=" + y +
-                    ", x=" + x +
-                    ", mass=" + mass +
-                    ", speed=" + speed +
-                    ", direction=" + direction +
-                    '}';
         }
     }
 }
