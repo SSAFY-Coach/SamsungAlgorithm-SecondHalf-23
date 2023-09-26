@@ -1,4 +1,4 @@
-package SamsungAlgorithm_SecondHalf_23.CodeTree.테트리스_블럭_안의_합_최대화_하기;
+package SamsungAlgorithm_SecondHalf_23.CodeTree.테트리스블럭안의합최대화하기;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

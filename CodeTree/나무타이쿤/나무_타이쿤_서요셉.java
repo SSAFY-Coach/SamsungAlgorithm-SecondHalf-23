@@ -1,9 +1,7 @@
-package SamsungAlgorithm_SecondHalf_23.CodeTree.나무_타이쿤;
+package SamsungAlgorithm_SecondHalf_23.CodeTree.나무타이쿤;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.StringTokenizer;
 /*
 5 2

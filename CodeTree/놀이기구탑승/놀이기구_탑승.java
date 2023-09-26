@@ -1,4 +1,4 @@
-package SamsungAlgorithm_SecondHalf_23.CodeTree.놀이기구_탑승;
+package SamsungAlgorithm_SecondHalf_23.CodeTree.놀이기구탑승;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

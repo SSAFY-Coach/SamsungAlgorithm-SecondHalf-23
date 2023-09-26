@@ -1,4 +1,4 @@
-package SamsungAlgorithm_SecondHalf_23.SWEA.점심_식사시간;
+package SamsungAlgorithm_SecondHalf_23.SWEA.점심식사시간;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

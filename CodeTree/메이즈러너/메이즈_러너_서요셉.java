@@ -1,4 +1,4 @@
-package SamsungAlgorithm_SecondHalf_23.CodeTree.메이즈_러너;
+package SamsungAlgorithm_SecondHalf_23.CodeTree.메이즈러너;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

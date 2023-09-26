@@ -1,4 +1,4 @@
-package SamsungAlgorithm_SecondHalf_23.CodeTree.원자_충돌;
+package SamsungAlgorithm_SecondHalf_23.CodeTree.원자충돌;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -38,7 +38,7 @@ import java.util.StringTokenizer;
  *  answer : k초일 때, 남아있는 원자 질량 합을 구하라.
  *
  */
-public class 원자_충돌_서요셉_속도개선 {
+public class 원자_충돌_서요셉 {
 
     static class Atom {
         int x, y, m, s, d;
@@ -138,13 +138,16 @@ public class 원자_충돌_서요셉_속도개선 {
                     int mSum = 0;
                     int sSum = 0;
                     int aCnt = atomBoard[i][j].size();
-                    int nextDir = atomBoard[i][j].get(0).d % 2;
+
+                    boolean isRowCol = false;
                     boolean isCross = false;
 
                     for (Atom a : atomBoard[i][j]) {
                         mSum += a.m;
                         sSum += a.s;
-                        if (!isCross && a.d % 2 != nextDir) isCross = true;
+
+                        if (a.d % 2 == 0) isRowCol = true;
+                        if (a.d % 2 == 1) isCross = true;
 
                         atomPool.remove(a);
                     }
@@ -156,10 +159,19 @@ public class 원자_충돌_서요셉_속도개선 {
                     if (newM == 0) continue;
                     int newS = sSum / aCnt;
 
-                    for (int k = isCross ? 1 : 0; k < 8; k+=2) {
-                        Atom newAtom = new Atom(i, j, newM, newS, k);
+                    // isRowCol, isCross 둘다 true 인 경우 -> 대각선
+                    // 그 외의 경우 -> 상하좌우
+                    int newD = -1;
+
+                    if (isRowCol && isCross) newD = 1;
+                    else newD = 0;
+
+                    for (int k = 0; k < 4; k++) {
+                        Atom newAtom = new Atom(i, j, newM, newS, newD);
+
                         atomBoard[i][j].add(newAtom);
                         atomPool.add(newAtom);
+                        newD += 2;
                     }
 
                 }
@@ -185,4 +197,3 @@ public class 원자_충돌_서요셉_속도개선 {
         }
     }
 }
-
