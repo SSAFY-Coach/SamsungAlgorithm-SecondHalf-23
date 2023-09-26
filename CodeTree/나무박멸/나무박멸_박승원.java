@@ -3,7 +3,7 @@ import java.util.*;
 
 
 
-public class treeDel {
+public class 나무박멸_박승원 {
 	static int N, M, K, C;
 	static int[][] myMap, medMap;
 	

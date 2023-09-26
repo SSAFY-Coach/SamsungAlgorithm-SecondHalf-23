@@ -1,10 +1,12 @@
+package SamsungAlgorithm_SecondHalf_23.Baekjoon.낚시왕;
+
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Main {
+public class 낚시왕_손동우 {
     private static final int[] dy = {0, -1, 1, 0, 0};
     private static final int[] dx = {0, 0, 0, 1, -1};
     private static final int[] nextDirection = {0, 2, 1, 4, 3};
@@ -68,7 +70,7 @@ public class Main {
         for (int[] ints : sharksCountMap) {
             Arrays.fill(ints, 0);
         }
-        sharkList.forEach(Main::moveShark);
+        sharkList.forEach(낚시왕_손동우::moveShark);
         eatSharks();
     }
 
