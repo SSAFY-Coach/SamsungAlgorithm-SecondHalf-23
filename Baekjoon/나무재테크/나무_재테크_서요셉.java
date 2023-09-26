@@ -45,7 +45,7 @@ import java.util.StringTokenizer;
  *
  * - answer : K 년이 지난 후 살아있는 나무의 개수를 구한다.
  */
-public class 나무_제태크_서요셉 {
+public class 나무_재테크_서요셉 {
 
     static class Tree {
         int x, y;       // 좌표
