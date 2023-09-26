@@ -1,3 +1,5 @@
+package SamsungAlgorithm_SecondHalf_23.CodeTree.테트리스블럭안의합최대화하기;
+
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
