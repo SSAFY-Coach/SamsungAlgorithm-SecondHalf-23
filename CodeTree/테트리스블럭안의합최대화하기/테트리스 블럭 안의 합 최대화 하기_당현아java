@@ -1,0 +1,93 @@
+import java.io.*;
+import java.util.*;
+
+public class Main {
+
+    public static int N, M, MAX;
+    public static int[][] MAP;
+    public static int[][][] BLOCKS;
+
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        init(br);
+
+        for (int n = 0;n < N;n++) {
+            for (int m = 0;m < M;m++)
+                MAX = Math.max(MAX, getMaxAreaSize(n, m)); // 컬럼 하나씩 조회
+        }
+
+        System.out.println(MAX);
+    }
+
+    /**
+     * @param i : 행 값
+     * @param j : 열 값
+     * @return  : 현재 컬럼위치에서의 가질 수 있는 블럭의 가장 큰 합 
+     */
+    public static int getMaxAreaSize(int i, int j) {
+        int result = -1;
+
+        for (int[][] blocks : BLOCKS)
+            result = Math.max(result, getAreaSize(i, j, blocks));
+
+        return result;
+    }
+
+    /**
+     * @param i     : 행 값
+     * @param j     : 열 값
+     * @param block : 블럭 정보
+     * @return      : 현재 블럭의 속해있는 영역의 합 (단, 구성될 수 없는 블럭이면 -1)
+     */
+    public static int getAreaSize(int i, int j, int[][] block) {
+        int sum = MAP[i][j];
+
+        for (int[] eachBlock : block) {
+            int ni = i + eachBlock[0];
+            int nj = j + eachBlock[1];
+
+            if (ni < 0 || nj < 0 || ni >= N || nj >= M) return -1;
+            sum += MAP[ni][nj];
+        }
+
+        return sum;
+    }
+
+    public static void init(BufferedReader br) throws Exception {
+        MAX = Integer.MIN_VALUE;
+
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        N = Integer.parseInt(st.nextToken());
+        M = Integer.parseInt(st.nextToken());
+        MAP = new int[N][M];
+
+        for (int n = 0;n < N;n++) {
+            st = new StringTokenizer(br.readLine());
+            for (int m = 0;m < M;m++)
+                MAP[n][m] = Integer.parseInt(st.nextToken());
+        }
+
+        // Block 19개 정보
+        BLOCKS = new int[][][] {
+                {{0, 1}, {0, 2}, {0, 3}},
+                {{0, 1}, {1, 0}, {1, 1}},
+                {{0, 1}, {-1, 1}, {-1, 2}},
+                {{0, 1}, {1, 1}, {1, 2}},
+                {{1, -1}, {1, 0}, {1, 1}},
+                {{0, 1}, {0, 2}, {1, 1}},
+                {{0, 1}, {0, 2}, {-1, 2}},
+                {{0, 1}, {0, 2}, {1, 0}},
+                {{1, 0}, {1, 1}, {1, 2}},
+                {{0, 1}, {0, 2}, {1, 2}},
+                {{1, 0}, {1, 1}, {2, 1}},
+                {{1, 0}, {1, -1}, {2, -1}},
+                {{1, 0}, {2, 0}, {1, 1}},
+                {{1, 0}, {1, -1}, {2, 0}},
+                {{1, 0}, {2, 0}, {2, 1}},
+                {{0, 1}, {1, 1}, {2, 1}},
+                {{0, 1}, {1, 0}, {2, 0}},
+                {{1, 0}, {2, 0}, {2, -1}},
+                {{1, 0}, {2, 0}, {3, 0}}
+        };
+    }
+}
