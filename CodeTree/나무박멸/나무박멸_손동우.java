@@ -1,9 +1,11 @@
+package SamsungAlgorithm_SecondHalf_23.CodeTree.나무박멸;
+
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.*;
 
-public class Main {
+public class 나무박멸_손동우 {
     private static final int WALL = -100;
     private static final int[] treeDy = {-1, 1, 0, 0};
     private static final int[] treeDx = {0, 0, -1, 1};

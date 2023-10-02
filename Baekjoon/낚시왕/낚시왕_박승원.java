@@ -2,7 +2,7 @@ import java.io.*;
 import java.util.*;
 
 
-public class BOJ_17143 {
+public class 낚시왕_박승원 {
 	static int R, C, M, king, result;
 	static int[][] myMap, nextMap;
 	static Shark[] sharks;
