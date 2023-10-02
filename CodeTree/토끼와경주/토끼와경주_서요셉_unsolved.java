@@ -4,15 +4,15 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.*;
 
-public class 토끼와경주_서요셉 {
+public class 토끼와경주_서요셉_unsolved {
 
-    private final static UserSolution userSolution = new UserSolution();
+    private final static UserSolution_3 userSolution = new UserSolution_3();
 
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st;
 
-        long score = 0;
+        int score = 0;
 
         int Q = Integer.parseInt(br.readLine());
         for (int i = 0; i < Q; i++) {
@@ -69,8 +69,9 @@ public class 토끼와경주_서요셉 {
  *
  * - 도합 Q 최대값 : 4,002
  */
-class UserSolution {
+class UserSolution_3 {
 
+    // 경주 우선순위 토끼 Comparator
     static final Comparator<Rabbit> raceRabbitComparator = (r1, r2) -> {
         if (r1.jumpCnt != r2.jumpCnt) return r1.jumpCnt - r2.jumpCnt;
         if ((r1.x + r1.y) != (r2.x + r2.y)) return (r1.x + r1.y) - (r2.x + r2.y);
@@ -79,6 +80,7 @@ class UserSolution {
         return r1.id - r2.id;
     };
 
+    // 점수 받을 우선순위 토끼 Comparator
     static final Comparator<Rabbit> scoreRabbitComparator = (r1, r2) -> {
         if ((r1.x + r1.y) != (r2.x + r2.y)) return (r2.x + r2.y) - (r1.x + r1.y);
         if (r1.x != r2.x) return r2.x - r1.x;
@@ -86,6 +88,7 @@ class UserSolution {
         return r2.id - r1.id;
     };
 
+    // 다음 좌표 우선순위 Comparator
     static final Comparator<Point> pointComparator = (p1, p2) -> {
         if ((p1.x + p1.y) != (p2.x + p2.y)) return (p2.x + p2.y) - (p1.x + p1.y);
         if (p1.x != p2.x) return p2.x - p1.x;
@@ -93,12 +96,11 @@ class UserSolution {
     };
 
     static int N, M, P;
-    static PriorityQueue<Rabbit> rabbitsPQ;
-    static HashMap<Integer, Rabbit> rabbitsHM;
 
     static int[] dx = {-1, 0, 1, 0};
     static int[] dy = {0, -1, 0, 1};
 
+    static Rabbit[] rabbitsPool;
     /**
      * P 마리 토끼가 N * M 크기의 격자 위에서 경주 준비를 한다.
      * 각 토끼에게는 고유한 번호가 있으며 한번 움직일 시 꼭 이동해야하는 이동 거리도 정해져 있다.
@@ -112,20 +114,20 @@ class UserSolution {
      *                            mRabbits[i][1] - 토끼 이동 방향 (1 <= d(i) <= 1,000,000,000)
      */
     static void init(int n, int m, int p, int[][] mRabbits) {
+//        System.out.println("100. 경주 시작 준비");
+
         N = n; M = m; P = p;
 
-        rabbitsPQ = new PriorityQueue<>(raceRabbitComparator);
-        rabbitsHM = new HashMap<>();
+        rabbitsPool = new Rabbit[P];
 
         for (int i = 0; i < P; i++) {
             int id = mRabbits[i][0];
             int dist = mRabbits[i][1];
 
             Rabbit rabbit = new Rabbit(id, dist);
-
-            rabbitsPQ.add(rabbit);
-            rabbitsHM.put(id, rabbit);
+            rabbitsPool[i] = rabbit;
         }
+
     }
 
     /**
@@ -164,75 +166,88 @@ class UserSolution {
      * @param S             : K 턴이 진행된 후 뽑힌 토끼들 중 우선순위가 높은 토끼에게 더할 점수 (1 <= S <= 1,000,000)
      */
     static void raceStart(int K, int S) {
-        PriorityQueue<Rabbit> scorePQ = new PriorityQueue<>(scoreRabbitComparator);
+//        System.out.println("200. 경주 진행");
+//        System.out.println("  - " + K + " 턴 동안 진행");
 
-        int totalScore = 0;
-        HashSet<Integer> pickRabbitIdSet = new HashSet<>();
+        for (Rabbit rabbit : rabbitsPool) {
+            rabbit.isJumped = false;
+        }
+
         for (int k = 0; k < K; k++) {
-            Rabbit rabbit = rabbitsPQ.poll();
+            Arrays.sort(rabbitsPool, raceRabbitComparator);
 
-            // 뽑힌 토끼의 ID를 Set 에 저장.
-            pickRabbitIdSet.add(rabbit.id);
+            Rabbit bestRabbit = rabbitsPool[0];
+            bestRabbit.jumpCnt++;
+            bestRabbit.isJumped = true;
 
-            // 뽑은 토끼가 이동할 최적 좌표를 구한다.
-            Point bestPoint = getBestPoint(rabbit);
+            // 4방 좌표를 구한뒤 우선순위 대로 하나의 좌표만 구해온다.
+            Point bestPoint = getBestPoint(bestRabbit);
 
-            // 해당 좌표로 토끼를 이동 시킨다.
-            rabbit.jump(bestPoint.x, bestPoint.y);
+            bestRabbit.x = bestPoint.x;
+            bestRabbit.y = bestPoint.y;
 
-            // 뽑힌 토끼가 이동한 좌표값 + 2를 봅힌 토끼 제외 다른 토끼들의 점수에 더한다.
-            // -> 현재 토끼의 점수를 좌표값 + 2 만큼 뺀다.
-            // 그 후 총 점수를 모든 토끼에 더하면 올바른 점수가 구해진다.
-            int score = bestPoint.x + bestPoint.y + 2;
-            rabbit.getScore(-score);
-            totalScore += score;
-
-            rabbitsPQ.add(rabbit);
+            // 해당 토끼를 제외한 모든 토끼들의 점수를 r + c + 2 만큼 더해준다.
+            scoreUpOtherRabbits(bestRabbit.id, bestRabbit.x + bestRabbit.y + 2);
         }
 
-        // 점수 보정
-        for (int id : rabbitsHM.keySet()) {
-            rabbitsHM.get(id).getScore(totalScore);
-        }
+        // 뽑혔던 토끼들 중 우선순위가 가장 높은 토끼에게 점수를 부여한다.
+        scoreUpBestRabbit(S);
 
-        // 뽑힌 토끼 id 를 통해 scorePQ 로 정렬
-        for (int id : pickRabbitIdSet) {
-            scorePQ.add(rabbitsHM.get(id));
-        }
+//        printRabbitINFO();
+    }
 
-        // 우선순위가 가장 높은 토끼 점수 부여
-        Rabbit bestRabbit = scorePQ.poll();
-        bestRabbit.getScore(S);
+    static void scoreUpOtherRabbits(int pid, int score) {
+        for (Rabbit rabbit: rabbitsPool) {
+            if (rabbit.id == pid) continue;
+
+            rabbit.score += score;
+        }
+    }
+
+    static void scoreUpBestRabbit(int score) {
+        Arrays.sort(rabbitsPool, scoreRabbitComparator);
+
+        for (Rabbit rabbit : rabbitsPool) {
+            if (rabbit.isJumped) {
+                rabbit.score += score;
+                break;
+            }
+        }
     }
 
     static Point getBestPoint(Rabbit rabbit) {
-        PriorityQueue<Point> pointPQ = new PriorityQueue<>(pointComparator);
+        Point[] points = new Point[4];
+
+        int x = rabbit.x;
+        int y = rabbit.y;
+        int dist = rabbit.dist;
 
         for (int d = 0; d < 4; d++) {
-            int nx = getNextPoint(rabbit.x, dx[d] * rabbit.dist, N);
-            int ny = getNextPoint(rabbit.y, dy[d] * rabbit.dist, M);
+            int nx = getPoint(rabbit.x, dx[d] * rabbit.dist, N);
+            int ny = getPoint(rabbit.y, dy[d] * rabbit.dist, M);
 
-            pointPQ.add(new Point(nx, ny));
+            points[d] = new Point(nx, ny);
         }
 
-        Point bestPoint = pointPQ.poll();
-
-        return bestPoint;
+        Arrays.sort(points, pointComparator);
+        return points[0];
     }
 
-    static int getNextPoint(int cur, int dist, int mod) {
+    // 임의로 0 ~ N-1, 0 ~ M-1 로 변경하였음
+    static int getPoint(int cur, int dist, int mod) {
         mod--;
 
-        // 줄어드는 방향이면 (상 좌)
+        // 가야할 방향이 상, 좌 여서 0 보다 작을 때
         if (dist < 0) {
             dist += cur;
             dist = -dist;
             cur = 0;
         }
-        // 늘어나는 방향이면 (하 우)
-        else if (dist + cur >= mod){
+        // 가야할 방향이 하, 우 여서 전체 범위보다 크거나 같을 때
+        else if (cur + dist >= mod) {
             dist -= (mod - cur);
 
+            // 그 값이 여전히 mod 보다 크면
             if (dist > mod) {
                 dist -= mod;
                 cur = 0;
@@ -253,19 +268,25 @@ class UserSolution {
      * @param L             : 이동 거리 l 배 (1 <= L <= 1,000,000,000)
      */
     static void changeDist(int mPid, int L) {
-        Rabbit rabbit = rabbitsHM.get(mPid);
-        rabbit.changeDist(L);
+//        System.out.println("300. 이동 거리 변경");
+
+        for (Rabbit rabbit: rabbitsPool) {
+            if (rabbit.id == mPid) {
+                rabbit.dist *= L;
+                break;
+            }
+        }
+
     }
 
     /**
      * @return          : 각 토끼가 모든 경주를 진행하며 얻은 점수 중 가장 높은 점수를 출력한다.
      */
-    static long getScore() {
-        long maxScore = 0;
+    static int getScore() {
+//        System.out.println("400. 최고 토끼 선정");
+        int maxScore = 0;
 
-        for (int id: rabbitsHM.keySet()) {
-            Rabbit rabbit = rabbitsHM.get(id);
-
+        for (Rabbit rabbit: rabbitsPool) {
             maxScore = Math.max(maxScore, rabbit.score);
         }
 
@@ -283,40 +304,35 @@ class UserSolution {
 
     static class Rabbit extends Point {
         int id;
-        int jumpCnt;
-        long score;
         int dist;
+        int jumpCnt;
+        int score;
+        boolean isJumped;
 
         public Rabbit(int id, int dist) {
             super(0, 0);
             this.id = id;
             this.dist = dist;
-        }
-
-        public void jump(int x, int y) {
-            this.x = x;
-            this.y = y;
-            this.jumpCnt++;
-        }
-
-        public void getScore(int score) {
-            this.score += score;
-        }
-
-        public void changeDist(int mul) {
-            this.dist *= mul;
+            this.isJumped = false;
         }
 
         @Override
         public String toString() {
             return "\tRabbit{" +
-                    "좌표 =(" + (x+1) +
-                    ", " + (y+1) +
-                    "), jumpCnt=" + jumpCnt +
-                    ", id=" + id +
-                    ", score=" + score +
+                    "좌표 = (" + x +
+                    ", " + y +
+                    "), id=" + id +
                     ", dist=" + dist +
+                    ", jumpCnt=" + jumpCnt +
+                    ", score=" + score +
+                    ", isJumped=" + isJumped +
                     '}';
+        }
+    }
+
+    static void printRabbitINFO() {
+        for (Rabbit r: rabbitsPool) {
+            System.out.println(r.toString());
         }
     }
 }
