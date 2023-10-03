@@ -1,9 +1,11 @@
+package SamsungAlgorithm_SecondHalf_23.SWEA.점심_식사시간;
+
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.*;
 
-public class Solution {
+public class 점심_식사시간_손동우 {
     private static int T;
     private static int N;
     private static final List<Person> peopleList = new ArrayList<>();

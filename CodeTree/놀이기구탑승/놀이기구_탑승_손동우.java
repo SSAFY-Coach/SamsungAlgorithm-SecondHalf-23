@@ -1,9 +1,11 @@
+package SamsungAlgorithm_SecondHalf_23.CodeTree.놀이기구탑승;
+
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.*;
 
-public class Main {
+public class 놀이기구_탑승_손동우 {
     private static final int[] dy = {-1, 1, 0, 0};
     private static final int[] dx = {0, 0, -1, 1};
     private static int N;

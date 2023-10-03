@@ -1,10 +1,12 @@
+package SamsungAlgorithm_SecondHalf_23.SWEA.특이한_자석;
+
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.StringTokenizer;
 
-public class Solution {
+public class 특이한_자석_손동우 {
     private static final int N = 0;
     private static final int S = 1;
     private static final int NUMBER_OF_MAGNETS = 4;

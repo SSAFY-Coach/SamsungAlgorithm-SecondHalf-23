@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.StringTokenizer;
-
 public class 테트리스_블럭_안의_합_최대화_하기_손동우 {
     private static int N, M;
     private static int[][] map;

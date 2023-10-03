@@ -1,9 +1,11 @@
+package SamsungAlgorithm_SecondHalf_23.CodeTree.나무타이쿤;
+
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.*;
 
-public class Main {
+public class 나무_타이쿤_손동우 {
     private static final int[] dy = {0, 0, -1, -1, -1, 0, 1, 1, 1};
     private static final int[] dx = {0, 1, 1, 0, -1, -1, -1, 0, 1};
     private static int N, M;

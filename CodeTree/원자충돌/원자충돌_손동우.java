@@ -1,3 +1,5 @@
+package SamsungAlgorithm_SecondHalf_23.CodeTree.원자충돌;
+
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
@@ -6,7 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-public class Main {
+public class 원자충돌_손동우 {
     /*
     delta array
     0: 상

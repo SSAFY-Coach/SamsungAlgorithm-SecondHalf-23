@@ -1,3 +1,5 @@
+package SamsungAlgorithm_SecondHalf_23.SWEA.줄기세포배양;
+
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
@@ -6,7 +8,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.StringTokenizer;
 
-public class Solution {
+public class 줄기세포배양_손동우 {
     private static final int[] dy = {-1, 1, 0, 0};
     private static final int[] dx = {0, 0, -1, 1};
     private static final int MAX_LENGTH = 1000;
