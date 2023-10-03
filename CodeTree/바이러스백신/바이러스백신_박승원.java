@@ -5,7 +5,7 @@ import java.util.*;
 public class CT_Virus {
 	
 	static int N, M, hCnt, answer;
-	static int[][] orgMap;
+	static int[][] orgMap, tempMap;
 	static ArrayList<Node> hLst;
 	static boolean[] used;
 	
@@ -22,6 +22,7 @@ public class CT_Virus {
 		answer = 10000;
 		
 		orgMap = new int[N][N];
+		tempMap = new int[N][N];
 		hLst = new ArrayList<Node>();
 		hCnt = 0;
 		
@@ -73,7 +74,6 @@ public class CT_Virus {
 		// used에 true로 된 병원들을 deque에 넣고 BFS 진행
 		
 		ArrayDeque<Node> que = new ArrayDeque<Node>();
-		int[][] tempMap = new int[N][N];
 		
 		for (int r = 0; r < N; r++) {
 			for (int c = 0; c < N; c++) {
@@ -104,8 +104,10 @@ public class CT_Virus {
 				// 이미 채워진 곳에 대해서는 더 작으면 진행 ! 아니면 취소
 				// 병원은 그냥 진행! 나중에 검증할때 병원은 제외해야함
 				if (tempMap[yr][xr] < tempMap[now.y][now.x] + 1) continue;
-				tempMap[yr][xr] = tempMap[now.y][now.x] + 1;
-				que.add(new Node(yr, xr));
+				if (tempMap[yr][xr] == 10000) {					
+					tempMap[yr][xr] = tempMap[now.y][now.x] + 1;
+					que.add(new Node(yr, xr));
+				}
 				
 			}
 		}
