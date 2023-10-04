@@ -34,22 +34,15 @@ public class Main {
     }
 
     private static int solution() {
-//        printMap();
         while (time < MAX_TIME && !isSucceed()) {
             int maxColumnSize = getSize(true);
             int maxRowSize = getSize(false);
-//            System.out.print("maxColumnSize = " + maxColumnSize);
-//            System.out.println(", maxRowSize = " + maxRowSize);
 
             //맵 두개를 왔다 갔다 하기 위해 다음 맵 초기화
             initMap();
             sort(maxColumnSize >= maxRowSize);
 
             time++;
-//            System.out.println();
-//            System.out.println("time = " + time);
-//            printMap();
-//            System.out.println("================================");
         }
         return isSucceed() ? time : -1;
     }
@@ -73,35 +66,42 @@ public class Main {
 
     private static void sortAndMove(List<Integer> numberList, int column, int row) {
         //빈도 작은 순으로, 빈도가 같다면 숫자가 작은 순으로 정렬
-        numberList.sort((number1, number2) -> {
-            int count1 = (int) numberList.stream().filter(n -> n.intValue() == number1).count();
-            int count2 = (int) numberList.stream().filter(n -> n.intValue() == number2).count();
-            if (count1 == count2) {
-                return number1 - number2;
-            } else {
-                return count1 - count2;
+        int[] numberCount = countNumberList(numberList);
+        for (int i = 1; i < MAX_LENGTH; i += 2) {
+            int[] numberCountPair = getMinCountNumber(numberCount);
+            if (numberCountPair[0] == 0 && numberCountPair[1] == 0) {
+                break;
             }
-        });
-//        System.out.println("numberList");
-//        numberList.forEach(number -> System.out.print(number + "\t"));
-//        System.out.println();
-
-
-        int beforeIndex = 0;
-        int index = 0;
-        for (int i = 1; i < MAX_LENGTH && index < numberList.size(); i += 2) {
-            int number = numberList.get(index);
             // 다음 맵에 현재 number 기록
-            map[(time + 1) % 2][column == -1 ? i : column][row == -1 ? i : row] = number;
-            while (index < numberList.size() && numberList.get(index) == number) {
-                index++;
-            }
+            map[(time + 1) % 2][column == -1 ? i : column][row == -1 ? i : row] = numberCountPair[0];
             // 다음 맵에 현재 number의 빈도 기록
-            map[(time + 1) % 2][column == -1 ? i + 1 : column][row == -1 ? i + 1 : row] = index - beforeIndex;
-//            System.out.print("number = " + number);
-//            System.out.print(", beforeIndex = " + beforeIndex);
-//            System.out.println(", index = " + index);
-            beforeIndex = index;
+            map[(time + 1) % 2][column == -1 ? i + 1 : column][row == -1 ? i + 1 : row] = numberCountPair[1];
+        }
+    }
+
+    private static int[] countNumberList(List<Integer> numberList) {
+        int[] numberCount = new int[1001];
+        for (int number : numberList) {
+            numberCount[number]++;
+        }
+        return numberCount;
+    }
+
+    private static int[] getMinCountNumber(int[] numberCount) {
+        int minNumber = Integer.MAX_VALUE;
+        int minCount = Integer.MAX_VALUE;
+        for (int i = 1; i < numberCount.length; i++) {
+            if (numberCount[i] > 0 && minCount > numberCount[i]) {
+                minCount = numberCount[i];
+                minNumber = i;
+            }
+        }
+
+        if (minNumber < Integer.MAX_VALUE) {
+            numberCount[minNumber] = 0;
+            return new int[]{minNumber, minCount};
+        } else {
+            return new int[]{0, 0};
         }
     }
 
@@ -129,14 +129,5 @@ public class Main {
 
     private static boolean isSucceed() {
         return map[time % 2][R][C] == K;
-    }
-
-    private static void printMap() {
-        for (int i = 1; i <= getSize(true); i++) {
-            for (int j = 1; j <= getSize(false); j++) {
-                System.out.print(map[time % 2][i][j] + "\t");
-            }
-            System.out.println();
-        }
     }
 }
