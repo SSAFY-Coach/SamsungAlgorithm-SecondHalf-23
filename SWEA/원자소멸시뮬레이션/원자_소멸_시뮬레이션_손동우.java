@@ -53,7 +53,7 @@ public class Solution {
             AtomPair atomPair = atomPairList.get(index);
             curTime = atomPair.time;
             Set<Atom> atomSet = new HashSet<>();
-            while (index < atomPairList.size() && Double.compare(atomPair.time, curTime) == 0) {
+            while (index < atomPairList.size() && Double.compare(atomPairList.get(index).time, curTime) == 0) {
                 atomPair = atomPairList.get(index);
                 if (!atomPair.atom1.isDestroyed && !atomPair.atom2.isDestroyed) {
                     atomSet.add(atomPair.atom1);
