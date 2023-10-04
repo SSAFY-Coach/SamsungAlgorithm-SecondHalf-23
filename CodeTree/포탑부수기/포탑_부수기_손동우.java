@@ -47,17 +47,11 @@ public class Main {
             Cannon[] minMaxCannons = findMinMaxCannonsAndIncreaseMinCannonScore(i);
             Cannon minCannon = minMaxCannons[0];
             Cannon maxCannon = minMaxCannons[1];
-//            System.out.println("minCannon = " + minCannon);
-//            System.out.println("maxCannon = " + maxCannon);
             boolean isSucceed = laserAttack(minCannon, maxCannon);
             if (!isSucceed) {
                 bombAttack(minCannon, maxCannon);
             }
-//            System.out.println("===== after attack =====");
-//            printMap();
             fixAndFallDownCannons();
-//            System.out.println("===== after fix =====");
-//            printMap();
         }
         Collections.sort(cannonList);
         return cannonList.get(0).attackScore;
@@ -174,7 +168,7 @@ public class Main {
             } else if (this.attackTurn != cannon.attackTurn) {
                 return this.attackTurn - cannon.attackTurn;
             } else if (this.y + this.x != cannon.y + cannon.x) {
-                return this.y + this.x - cannon.y + cannon.x;
+                return (this.y + this.x) - (cannon.y + cannon.x);
             } else {
                 return this.x - cannon.x;
             }
@@ -192,30 +186,5 @@ public class Main {
         public int hashCode() {
             return Objects.hash(y, x);
         }
-
-        @Override
-        public String toString() {
-            return "Cannon{" +
-                    "y=" + y +
-                    ", x=" + x +
-                    ", attackScore=" + attackScore +
-                    ", attackTurn=" + attackTurn +
-                    ", isRelevantToAttack=" + isRelevantToAttack +
-                    ", prevCannon=" + prevCannon +
-                    '}';
-        }
-    }
-
-    private static void printMap() {
-        for (int i = 1; i <= N; i++) {
-            for (int j = 1; j <= M; j++) {
-                if (map[i][j] != null)
-                    System.out.print(map[i][j].attackScore + "\t");
-                else
-                    System.out.print("0\t");
-            }
-            System.out.println();
-        }
-        System.out.println();
     }
 }
