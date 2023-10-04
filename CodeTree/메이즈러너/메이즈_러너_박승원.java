@@ -1,8 +1,9 @@
+package SamsungAlgorithm_SecondHalf_23.CodeTree.메이즈러너;
+
 import java.io.*;
 import java.util.*;
 
-
-public class CT_Mazerunner {
+public class 메이즈_러너_박승원 {
 	static int N, M, K, result;
 	static Point ext;
 	static int[][] myMap;
