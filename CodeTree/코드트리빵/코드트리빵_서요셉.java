@@ -50,48 +50,22 @@ public class 코드트리빵_서요셉 {
     }
 
     static class Person extends Point {
-        boolean isStarted;
-        boolean isArrived;
-        Point destination;          // 목표 편의점 좌표
-        Queue<Point> minPointQ;
+        Point destination;
 
-        public Person() {
-            super(0, 0);        // 최초 격자 밖에 존재.
-            this.isStarted = false;
-            this.isArrived = false;
-            this.minPointQ = new LinkedList<>();
-        }
-
-        // 출발 여부를 true 로 설정하고 베이스캠프 위치에 위치시킨다.
-        public void start(Point basecamp) {
-            this.x = basecamp.x;
-            this.y = basecamp.y;
-            this.isStarted = true;
-        }
-
-        @Override
-        public String toString() {
-            String s = "도착";
-
-            if (!isArrived) s = "X";
-
-            return "\tPerson{" +
-                    "현재 위치 = (" + x +
-                    ", " + y +
-                    "), isArrived=" + s +
-                    '}';
+        public Person(Point destination) {
+            super(0, 0);
+            this.destination = destination;
         }
     }
+
+    static int N, M;
+    static int[][] board;
+    static int[][] dist;
+    static Person[] people = new Person[31];
 
     // 상 좌 우 하
     static final int[] dx = {-1, 0, 0, 1};
     static final int[] dy = {0, -1, 1, 0};
-
-    static int N, M, time;
-
-    static int[][] board;           // (1, 1) 부터 시작
-    static Person[] people;
-    static Point[][] back;
 
     static void input() throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -101,12 +75,12 @@ public class 코드트리빵_서요셉 {
         M = Integer.parseInt(st.nextToken());
 
         board = new int[N + 1][N + 1];
-        people = new Person[M + 1];
-        for (int i = 1; i <= M; i++) {
-            people[i] = new Person();
+        dist = new int[N + 1][N + 1];
+
+        for (int i = 1; i < people.length; i++) {
+            people[i] = new Person(null);
         }
 
-        // 베이스 캠프와 빈공간 격자 정보 입력
         for (int i = 1; i <= N; i++) {
             st = new StringTokenizer(br.readLine());
             for (int j = 1; j <= N; j++) {
@@ -114,103 +88,120 @@ public class 코드트리빵_서요셉 {
             }
         }
 
-        // 편의점 위치 정보 입력
         for (int i = 1; i <= M; i++) {
             st = new StringTokenizer(br.readLine());
 
             int x = Integer.parseInt(st.nextToken());
             int y = Integer.parseInt(st.nextToken());
 
-            people[i].destination = new Point(x, y);
+            Point destination = new Point(x, y);
+            people[i].destination = destination;
         }
 
     }
     public static void main(String[] args) throws Exception {
         input();
 
-        time = 0;
-        // 모든 사람이 목표 편의점에 도착하면 종료
+        int time = 0;
         while (!allArrived()) {
             time++;
-            System.out.println("< " + time + " 분 경과 >");
-            // 사람들 이동
-            move(time);
 
-            System.out.println("\t -- 이동 후 --");
-            printPersonStatus();
+            // 모든 사람 한 칸씩 이동
+            for (int i = 1; i < time && i <= M; i++) {
+                move(people[i]);
+            }
+
+            // 도착한 사람 도착 처리
+            for (int i = 1; i < time && i <= M; i++) {
+                checkArrived(people[i]);
+            }
+
+            // 처음 출발하는 사람들 베이스캠프에 위치
+            if (time <= M) {
+                start(people[time]);
+            }
         }
 
         System.out.println(time);
     }
 
-    static void move(int t) {
+    static void move(Person p) {
+        // 이미 도착한 사람이라면 return
+        if (isArrived(p)) return;
 
-        // 모든 사람이 아직 출발 전이라면
-        if (t <= M) {
-            // 시간 순대로 사람들을 출발 시킨다.
-            for (int i = 1; i <= t; i++) {
-                Person p = people[i];
+        // 최단 경로 업데이트
+        findMinDist(p.destination);
 
-                // 아직 출발하지 않은 사람들은 자신의 목표 편의점에서 가장 가까운 베이스캠프를 찾고 그곳에 위치시킨다.
-                if (!p.isStarted) {
-                    System.out.println("\t" + i + " 번 사람이 베이스캠프에 위치합니다.");
+        int minDist = Integer.MAX_VALUE;
+        int minDir = -1;
 
-                    Point basecamp = findMinBasecamp(p);
-                    p.start(basecamp);
-                }
-                // 출발한 사람들은 자신의 목표 편의점을 향해 최단 거리로 한칸씩 이동시킨다.
-                else {
-                    // 이미 편의점에 도착했다면 continue
-                    if (p.isArrived) {
-                        System.out.println("\t" + i + " 번 사람은 이미 편의점에 도착했습니다.");
-                        continue;
-                    }
+        for (int d = 0; d < 4; d++) {
+            int nx = p.x + dx[d];
+            int ny = p.y + dy[d];
 
-                    // 최단거리로 목표를 향해 한 칸씩 이동
-                    System.out.println("\t" + i + " 번 사람은 한 칸 이동합니다.");
-                    moveSub(p);
-                }
-            }
+            // 경계밖이거나 방문할 수 없는 곳이면 continue
+            if (isNotBoundary(nx, ny)) continue;
+            if (board[nx][ny] == -1) continue;
 
-        }
-        // 모든 사람이 출발했다면
-        else {
-            // 편의점에 도착한 사람을 제외한 모든 사람을 이동 시킨다.
-            for (int i = 1; i <= M; i++) {
-                Person p = people[i];
-
-                // 이미 편의점에 도착했다면 continue
-                if (p.isArrived) {
-                    System.out.println("\t" + i + " 번 사람은 이미 편의점에 도착했습니다.");
-                    continue;
-                }
-
-                // 최단거리로 목표를 향해 한 칸씩 이동
-                System.out.println("\t" + i + " 번 사람은 한 칸 이동합니다.");
-                moveSub(p);
+            if (minDist > dist[nx][ny]) {
+                minDist = dist[nx][ny];
+                minDir = d;
             }
         }
+
+        p.x += dx[minDir];
+        p.y += dy[minDir];
     }
 
-    static Point findMinBasecamp(Person p) {
-        // 최단 경로 역추적하기 위한 back 배열
-        back = new Point[N + 1][N + 1];
+    static void checkArrived(Person p) {
+        if (isArrived(p)) board[p.x][p.y] = -1;
+    }
+
+    // 목적 편의점에서부터 거리가 제일 가까운 베이스캠프를 고른다.
+    static void start(Person p) {
+        // 한 사람의 목적 편의점에서부터 시작하여 모든 좌표에 최단 거리를 기록한다.
+        findMinDist(p.destination);
+
+        int minDist = Integer.MAX_VALUE;
+        int minX = 0;
+        int minY = 0;
+
+        // 격자를 순회하면서 (행값이 작은것, 여러개라면 열값이 작은것이므로 순차적으로 순회하면 됨.) 거리가 최소인 좌표를 찾는다.
         for (int i = 1; i <= N; i++) {
             for (int j = 1; j <= N; j++) {
-                back[i][j] = new Point(0, 0);
+                // 베이스캠프가 아니면 continue
+                if (board[i][j] != 1) continue;
+                if (minDist > dist[i][j]) {
+                    minDist = dist[i][j];
+                    minX = i;
+                    minY = j;
+                }
             }
         }
 
-        Point basecamp = new Point(0, 0);
+        p.x = minX;
+        p.y = minY;
 
-        int sx = p.destination.x;
-        int sy = p.destination.y;
+        // 선택된 베이스캠프는 지나가지 못하는 위치로 마킹
+        board[p.x][p.y] = -1;
+    }
+
+    // destination 좌표 기준으로 최단거리를 모든 좌표에 기록한다.
+    static void findMinDist(Point destination) {
+        int sx = destination.x;
+        int sy = destination.y;
+
+        // 거리 2차원 배열 초기화
+        for (int i = 1; i <= N; i++) {
+            for (int j = 1; j <= N; j++) {
+                dist[i][j] = Integer.MAX_VALUE;
+            }
+        }
 
         Queue<Point> q = new LinkedList<>();
-        boolean[][] visited = new boolean[N + 1][N + 1];
-
         q.add(new Point(sx, sy));
-        visited[sx][sy] = true;
+
+        dist[sx][sy] = 0;
 
         while (!q.isEmpty()) {
             Point cur = q.poll();
@@ -218,135 +209,34 @@ public class 코드트리빵_서요셉 {
             int cx = cur.x;
             int cy = cur.y;
 
-            // 베이스캠프를 찾으면
-            if (board[cx][cy] == 1) {
-                basecamp.x = cx;
-                basecamp.y = cy;
-                board[cx][cy] = 2;      // 선택한 베이스캠프는 2로 마스킹
-                break;
-            }
-
             for (int d = 0; d < 4; d++) {
                 int nx = cx + dx[d];
                 int ny = cy + dy[d];
 
-                // 경계 밖이거나, 이미 방문했거나, 이미 선택된 베이스캠프이거나
-                // 이미 다른 사람이 도착한 편의점이라면 continue
+                // 경계 밖이거나 이미 방문하여 거리가 기록된곳이거나 지날 수 없는 곳은 continue
                 if (isNotBoundary(nx, ny)) continue;
-                if (visited[nx][ny]) continue;
-                if (board[nx][ny] == 2 || board[nx][ny] == 3) continue;
+                if (dist[nx][ny] != Integer.MAX_VALUE) continue;
+                if (board[nx][ny] == -1) continue;
 
+                dist[nx][ny] = dist[cx][cy] + 1;
                 q.add(new Point(nx, ny));
-                visited[nx][ny] = true;
-                back[nx][ny] = cur;
             }
         }
+    }
 
-        // t번의 사람이 이동할 최단 경로를 저장한다.
-        Point backPoint = basecamp;
-
-        while (backPoint.x != sx || backPoint.y != sy) {
-            backPoint = back[backPoint.x][backPoint.y];
-            p.minPointQ.add(backPoint);
+    static boolean allArrived() {
+        for (int i = 1; i <= M; i++) {
+            if (!isArrived(people[i])) return false;
         }
+        return true;
+    }
 
-        return basecamp;
+    static boolean isArrived(Person p) {
+        return p.x == p.destination.x && p.y == p.destination.y;
     }
 
     static boolean isNotBoundary(int x, int y) {
         return !(1 <= x && x <= N && 1 <= y && y <= N);
     }
 
-    static void moveSub(Person p) {
-        // 도착한 편의점은 3으로 표기
-        // 이미 선택된 베이스캠프 (2) 이거나 이미 다른 사람이 도착한 편의점(3) 이라면 continue
-
-        // 이 사람의 최단경로 Q에서 하나를 뽑아본다.
-        Point np = p.minPointQ.peek();
-
-        // 만약 이미 선택된 베이스캠프 (2) 이거나 이미 다른 사람이 도착한 편의점(3) 이라면
-        if (board[np.x][np.y] == 2 || board[np.x][np.y] == 3) {
-            // 최단 경로를 다시 탐색해야한다.
-            findMinPoint(p);
-        }
-
-        // 하나를 뽑아내서 한칸 이동시킨다.
-        np = p.minPointQ.poll();
-
-        p.x = np.x;
-        p.y = np.y;
-
-        if (p.x == p.destination.x && p.y == p.destination.y) {
-            p.isArrived = true;
-            board[p.x][p.y] = 3;
-        }
-    }
-
-    static void findMinPoint(Person p) {
-        p.minPointQ.clear();
-
-        back = new Point[N + 1][N + 1];
-        for (int i = 1; i <= N; i++) {
-            for (int j = 1; j <= N; j++) {
-                back[i][j] = new Point(0, 0);
-            }
-        }
-
-        Queue<Point> q = new LinkedList<>();
-        boolean[][] visited = new boolean[N + 1][N + 1];
-
-        int sx = p.destination.x;
-        int sy = p.destination.y;
-
-        q.add(new Point(sx, sy));
-        visited[sx][sy] = true;
-
-        while (!q.isEmpty()) {
-            Point cur = q.poll();
-
-            int cx = cur.x;
-            int cy = cur.y;
-
-            // 사람의 현재 위치라면 종료
-            if (cx == p.x && cy == p.y) {
-                break;
-            }
-
-            for (int d = 0; d < 4; d++) {
-                int nx = cx + dx[d];
-                int ny = cy + dy[d];
-
-                if (isNotBoundary(nx, ny)) continue;
-                if (visited[nx][ny]) continue;
-                if (board[nx][ny] == 2 || board[nx][ny] == 3) continue;
-
-                q.add(new Point(nx, ny));
-                visited[nx][ny] = true;
-                back[nx][ny] = cur;
-            }
-        }
-
-        Point backPoint = back[p.x][p.y];
-
-        while (backPoint.x != sx || backPoint.y != sy) {
-            backPoint = back[backPoint.x][backPoint.y];
-            p.minPointQ.add(backPoint);
-        }
-    }
-
-    static boolean allArrived() {
-        for (int i = 1; i <= M; i++) {
-            Person p = people[i];
-            if (!p.isArrived) return false;
-        }
-        return true;
-    }
-
-    static void printPersonStatus() {
-        for (int i = 1; i < people.length; i++) {
-            Person p = people[i];
-
-            System.out.println(p.toString());
-        }
-    }
 }
