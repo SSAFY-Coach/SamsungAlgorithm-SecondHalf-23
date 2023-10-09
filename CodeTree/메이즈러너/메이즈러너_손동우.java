@@ -1,3 +1,5 @@
+package SamsungAlgorithm_SecondHalf_23.CodeTree.메이즈러너;
+
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
@@ -6,7 +8,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 
-public class Main {
+public class 메이즈러너_손동우 {
     private static final int[] dy = {-1, 1, 0, 0};
     private static final int[] dx = {0, 0, -1, 1};
     private static int N, M, K;
@@ -62,7 +64,7 @@ public class Main {
 
     private static int moveAll() {
         return runnerList.stream()
-                .mapToInt(Main::move)
+                .mapToInt(메이즈러너_손동우::move)
                 .sum();
     }
 
