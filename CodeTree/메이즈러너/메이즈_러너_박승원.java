@@ -1,5 +1,3 @@
-package SamsungAlgorithm_SecondHalf_23.CodeTree.메이즈러너;
-
 import java.io.*;
 import java.util.*;
 

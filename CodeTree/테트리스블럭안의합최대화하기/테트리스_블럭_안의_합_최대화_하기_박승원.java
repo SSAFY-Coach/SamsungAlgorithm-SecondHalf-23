@@ -1,9 +1,7 @@
-package SamsungAlgorithm_SecondHalf_23.CodeTree.테트리스블럭안의합최대화하기;
-
 import java.io.*;
 import java.util.*;
 
-public class 테트리스_블럭_안의_합_최대화_하기_박승원 {
+public class Main {
 	static int answer = -1;
 	static int R, C;
 	static int[][] myMap;
